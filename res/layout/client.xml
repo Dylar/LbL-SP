@@ -1,0 +1,72 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+	android:background="#909590">
+
+	<EditText
+		android:id="@+id/server_ip"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		android:orientation="vertical"
+		android:text="192.168.2.115"
+	/>
+	<EditText
+		android:id="@+id/server_port"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		android:orientation="vertical"
+		android:text="8080"
+	/>
+	<Button
+		android:id="@+id/connect"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:text="Connect"
+		android:onClick="connect"
+	/>
+	<Button
+		android:id="@+id/stop"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:text="Stop"
+		android:onClick="stop"
+	/>
+	<TextView
+		android:id="@+id/chat_log"
+		android:layout_width="fill_parent"
+		android:layout_height="100dp"
+		android:orientation="vertical"
+	
+		android:text="insert text"
+		
+	/>
+
+	<EditText
+		android:id="@+id/chat_input"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		android:orientation="vertical"
+		android:text="insert text"
+		android:background="#A0A590"
+	/>
+	<Button
+		android:id="@+id/chat_send_b"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:text="Send"
+		android:onClick="send"
+	/>
+	<TextView
+		android:id="@+id/quickinfo"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+
+		android:text="Quickinfo"
+
+	/>
+</LinearLayout>
