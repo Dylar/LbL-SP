@@ -1,5 +1,5 @@
-package de.lbl.kb_bachelor_app;
-import de.lbl.kb_bachelor_app.ControlAction.*;
+package de.lbl.kb_bachelor_app.control;
+import de.lbl.kb_bachelor_app.control.ControlAction.*;
 
 public class ControlAction
 {

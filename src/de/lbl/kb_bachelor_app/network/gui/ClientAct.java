@@ -1,4 +1,4 @@
-package de.lbl.kb_bachelor_app.network;
+package de.lbl.kb_bachelor_app.network.gui;
 
 
 import android.app.*;
@@ -7,9 +7,13 @@ import android.util.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+
 import java.io.*;
 import java.net.*;
+
 import de.lbl.kb_bachelor_app.*;
+import de.lbl.kb_bachelor_app.control.ControlAction;
+import de.lbl.kb_bachelor_app.control.Controller;
 
 
 public class ClientAct extends Activity

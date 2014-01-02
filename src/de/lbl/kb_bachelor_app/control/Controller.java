@@ -1,12 +1,22 @@
-package de.lbl.kb_bachelor_app;
+package de.lbl.kb_bachelor_app.control;
 
-import de.lbl.kb_bachelor_app.network.*;
-import java.util.*;
-import android.util.*;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import android.util.Log;
+import de.lbl.kb_bachelor_app.network.Client;
+import de.lbl.kb_bachelor_app.network.NetworkCommand;
+import de.lbl.kb_bachelor_app.network.gui.ClientAct;
 
 public class Controller
 {
 	public final static String TAG = "Controller: ";
+	
+	public static final int GETID = 0;
+	public static final int SENDMESSAGE = 1;
+	public static final int STARTSERVER = 2;
+	public static final int STOPSERVER = 3;
+	public static final int GETMESSAGE = 4;
 	
 	Client client;
 	ClientAct cAct;
@@ -17,7 +27,7 @@ public class Controller
 	public Controller(ClientAct act)
 	{
 		cAct = act;
-		client = new Client();
+		client = new Client(this);
 		schedule = new LinkedList<ControlAction>();
 		scheThread = newScheduleThread();
 		scheThread.start();
@@ -70,10 +80,14 @@ public class Controller
 			Log.d(TAG,"is not connected");
 			if (!serverIp.equals(""))
 			{
-				Log.d(TAG,"ip not empty"); // bessere erkennung ob gültige ip
+				Log.d(TAG,"IP: " + serverIp); // bessere erkennung ob gültige ip
 				client.serverIpAddress = serverIp;
 				client.serverPort = serverPort;
 				client.connect();
+				
+				NetworkCommand nc = getNewNetworkCommand();
+				nc.setCommand(GETID);
+				client.scheduleCommand(nc);
 			}
 			else
 			{
