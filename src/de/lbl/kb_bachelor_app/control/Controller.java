@@ -4,30 +4,28 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.util.Log;
-import de.lbl.kb_bachelor_app.network.Client;
+import de.lbl.kb_bachelor_app.network.TCPClient;
 import de.lbl.kb_bachelor_app.network.NetworkCommand;
 import de.lbl.kb_bachelor_app.network.gui.ClientAct;
 
-public class Controller
+public class Controller implements ControlHandler
 {
 	public final static String TAG = "Controller: ";
 	
-	public static final int GETID = 0;
-	public static final int SENDMESSAGE = 1;
-	public static final int STARTSERVER = 2;
-	public static final int STOPSERVER = 3;
-	public static final int GETMESSAGE = 4;
-	
-	Client client;
-	ClientAct cAct;
+	TCPClient client;
+	ClientAct guiAct;
 
 	Queue<ControlAction> schedule;
 	Thread scheThread;
 
 	public Controller(ClientAct act)
 	{
-		cAct = act;
-		client = new Client(this);
+		guiAct = act;
+		guiAct.addController(this);
+		
+		client = new TCPClient();
+		client.addController(this);
+		
 		schedule = new LinkedList<ControlAction>();
 		scheThread = newScheduleThread();
 		scheThread.start();
@@ -55,10 +53,15 @@ public class Controller
 								case DISCONNECT:
 									disconnect();
 									break;
-								case SEND:
+								case SEND_MESSAGE:
 									String m = ca.message;
 									sendChatMessage(m);
 									break;
+								case SEND_ID:
+									int id = ca.ID;
+									setID(id);
+									break;
+								
 							}
 							addToPool(ca);
 						}
@@ -71,11 +74,17 @@ public class Controller
 	{
 		schedule.add(ac);
 	}
-
+	
+	private void setID(int id)
+	{
+		client.ID = id;
+		writeQuickInfo("ID SETTED");
+	}
+	
 	private void connect(String serverIp, int serverPort)
 	{
 		Log.d(TAG,"try connecting");
-		if (client.state.equals(Client.State.DISCONNECTED))
+		if (client.state.equals(TCPClient.State.DISCONNECTED))
 		{ 
 			Log.d(TAG,"is not connected");
 			if (!serverIp.equals(""))
@@ -84,10 +93,7 @@ public class Controller
 				client.serverIpAddress = serverIp;
 				client.serverPort = serverPort;
 				client.connect();
-				
-				NetworkCommand nc = getNewNetworkCommand();
-				nc.setCommand(GETID);
-				client.scheduleCommand(nc);
+				writeQuickInfo("Connected");
 			}
 			else
 			{
@@ -114,7 +120,7 @@ public class Controller
 	private void sendChatMessage(String m)
 	{
 		NetworkCommand nc = getNewNetworkCommand();
-		nc.setCommand(NetworkCommand.Commands.SENDMESSAGE);
+		nc.setCommand(SEND_MESSAGE);
 		nc.setMessage(m);
 		client.scheduleCommand(nc);
 	}
@@ -122,10 +128,10 @@ public class Controller
 	public void writeQuickInfo(String m)
 	{
 		final String me = m;
-		cAct.handler.post(new Runnable(){
+		guiAct.handler.post(new Runnable(){
 			@Override
 			public void run(){
-				cAct.quickInfoTV.setText(me);
+				guiAct.quickInfoTV.setText(me);
 			}
 		});
 	}
