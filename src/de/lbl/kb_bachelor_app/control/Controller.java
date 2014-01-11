@@ -16,7 +16,7 @@ public class Controller implements ControlHandler
 	ClientAct guiAct;
 
 	Queue<ControlAction> schedule;
-	Thread scheThread;
+	Thread actionThread;
 
 	public Controller(ClientAct act)
 	{
@@ -27,8 +27,8 @@ public class Controller implements ControlHandler
 		client.addController(this);
 		
 		schedule = new LinkedList<ControlAction>();
-		scheThread = newScheduleThread();
-		scheThread.start();
+		actionThread = newScheduleThread();
+		actionThread.start();
 	}
 
 	public Thread newScheduleThread()
@@ -37,8 +37,7 @@ public class Controller implements ControlHandler
 				@Override
 				public void run()
 				{
-					while (true)
-					{
+					waiting(actionThread);
 						while (!schedule.isEmpty())
 						{
 							Log.d(TAG, "Try next scheduled action");
@@ -60,11 +59,27 @@ public class Controller implements ControlHandler
 								case SEND_ID:
 									int id = ca.ID;
 									setID(id);
+									writeQuickInfo("received ID: "+id);
+									break;
+								case GET_MESSAGE:
+									writeChatMessage(ca.message);
 									break;
 								
 							}
 							addToPool(ca);
+							waiting(actionThread);
 						}
+						
+				}
+
+				public void waiting(Object o){
+					synchronized(o){
+						try
+						{
+							o.wait();
+						}
+						catch (InterruptedException e)
+						{}
 					}
 				}
 			});
@@ -73,6 +88,10 @@ public class Controller implements ControlHandler
 	public void scheduleAction(ControlAction ac)
 	{
 		schedule.add(ac);
+		Log.d(TAG, "action scheduled");
+		synchronized(actionThread){
+			actionThread.notify();
+		}
 	}
 	
 	private void setID(int id)
@@ -124,17 +143,17 @@ public class Controller implements ControlHandler
 		nc.setMessage(m);
 		client.scheduleCommand(nc);
 	}
-
-	public void writeQuickInfo(String m)
+	
+	private void writeChatMessage(String message)
 	{
-		final String me = m;
-		guiAct.handler.post(new Runnable(){
-			@Override
-			public void run(){
-				guiAct.quickInfoTV.setText(me);
-			}
-		});
+		guiAct.writeChatMessage(message);
 	}
+	
+	private void writeQuickInfo(String m)
+	{
+		guiAct.writeQuickInfo(m);
+	}
+	
 
 	public ControlAction getNewAction()
 	{

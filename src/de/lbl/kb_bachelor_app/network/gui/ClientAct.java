@@ -78,6 +78,7 @@ public class ClientAct extends Activity implements ControlListener
 	{
 		Log.d(TAG, "try to send a message");
 		String message = chatInputET.getText().toString();
+		chatInputET.setText("");
 		ControlAction ca = ctrl.getNewAction();
 		ca.setAction(ControlHandler.SEND_MESSAGE);
 		ca.setMessage(message);
@@ -97,4 +98,28 @@ public class ClientAct extends Activity implements ControlListener
 	{
 		this.ctrl = ch;
 	}
+	
+	public void writeQuickInfo(String m)
+	{
+		final String me = m;
+		handler.post(new Runnable(){
+				@Override
+				public void run(){
+					quickInfoTV.setText(me);
+				}
+			});
+	}
+	
+	public void writeChatMessage(String m)
+	{
+		final String me = returnTextTV.getText() +"\n"+ m;
+		handler.post(new Runnable(){
+				@Override
+				public void run(){
+					
+					returnTextTV.setText(me);
+				}
+			});
+	}
+	
 }

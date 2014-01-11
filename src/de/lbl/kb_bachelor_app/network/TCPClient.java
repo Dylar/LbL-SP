@@ -68,7 +68,7 @@ public class TCPClient implements ControlListener
 
 	public void scheduleCommand(NetworkCommand nc)
 	{
-		// TODO schnittstelle für draußen
+		// TODO schnittstelle fï¿½r drauï¿½en
 		Log.d(TAG, "command scheduled");
 		commands.add(nc);
 	}
@@ -89,26 +89,18 @@ public class TCPClient implements ControlListener
 					out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 					in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					state = State.CONNECTED;
-					//
-					// handler.post(new Runnable() {
-					// @Override
-					// public void run() {
-					// returnText.setText("connected");
-					// }
-					// });
 
 					while (state.equals(State.CONNECTED))
 					{
-
 						if (!commands.isEmpty())
 						{
 							Log.d(TAG, "C: Sending command.");
 
 							writeOutput(getNextCommand());
 						}
-
-						readInput();
-
+						if(in.ready())
+							readInput();
+						Thread.sleep(420);
 					}
 					socket.close();
 					Log.d(TAG, "C: Closed.");
@@ -145,8 +137,9 @@ public class TCPClient implements ControlListener
 				Log.d(TAG, " GET ID");
 				break;
 			case ControlHandler.SEND_MESSAGE: // send Message
-
-				Log.d(TAG, " SEND MESSAGE");
+				ca.action = ControlHandler.GET_MESSAGE;
+				ca.message = in.readLine();
+				Log.d(TAG, " getting MESSAGE");
 				break;
 			case ControlHandler.GET_MESSAGE: // get message
 
@@ -164,14 +157,18 @@ public class TCPClient implements ControlListener
 	{
 		// TODO output schreiben
 		Log.d(TAG, "write output");
+		out.println(nc.command);
 		switch (nc.getCommand())
 		{
-			case Controller.SEND_ID:
-				out.println(Controller.SEND_ID);
+			case ControlHandler.SEND_ID:
 				out.println(nc.ID);
 				break;
+			case ControlHandler.SEND_MESSAGE:
+				out.println(nc.message);
+				break;
+			
 			default:
-				out.println(TAG + "Hey Server! was geht");
+				//out.println(TAG + "Hey Server! was geht");
 				break;
 		}
 		out.flush();
